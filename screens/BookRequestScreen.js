@@ -52,13 +52,13 @@ export default class BookRequestScreen extends Component {
         db.collection("users").where("email_id","==",this.state.userId)
         .get().then((snapshot)=>{
             snapshot.forEach(doc=>{
-                var name = doc.data().first_name,
-                var lname = doc.data().last_name
+                var name = doc.data().first_name;
+                var lname = doc.data().last_name;
                 db.collection('All_Notification').where("request_id","==",this.state.requestId)
                 .get().then(snapshot=>{
                     snapshot.forEach(doc=>{
-                        var donorId = doc.data().donor_id,
-                        var bookName = doc.data().book_name
+                        var donorId = doc.data().donor_id;
+                        var bookName = doc.data().book_name;
                         db.collection("All_Notifications").add({
                             "targeted_user_id" : donorId, 
                             "message" : name +" " + lname + " received the book " + bookName , 
@@ -118,39 +118,60 @@ export default class BookRequestScreen extends Component {
         this.getIsBookRequestActive();
     }
     render(){
-        return(
-            <View style = {{flex:1}}>
-                <MyHeader title="Request Books"></MyHeader>
-                <KeyboardAvoidingView style={styles.keyboardStyle}>
-                    <TextInput style={styles.formTextInput} placeholder="Enter book name" 
-                    onChangeText={(text)=>{
-                        this.setState({
-                            bookName : text,
-                        })
-                    }} value={this.state.bookName}></TextInput>
-                    <TextInput style={styles.formTextInput} placeholder="Enter book author" 
-                    onChangeText={(text)=>{
-                        this.setState({
-                            author : text,
-                        })
-                    }} value={this.state.author}></TextInput>
-                    <TextInput style = {[styles.formTextInput, {height : 300}]} 
-                    multiline numberOfLines = {10} 
-                    placeholder = "Why do you need the book?"
-                    onChangeText={(text)=>{
-                        this.setState({
-                            reasonToRequest : text,
-                        })
-                    }} value={this.state.reasonToRequest}></TextInput>
-                    <TouchableOpacity style={styles.button}
-                    onPress = {()=>{
-                        this.addRequest(this.state.bookName,this.state.reasonToRequest,this.state.author)
+        if(this.state.isBookRequestActive===true){
+            return(
+                <View style={styles.container}>
+                    <View style={styles.bookRequestStyle}>
+                        <Text style={{fontweight:"bold"}}>Book Name</Text>
+                        <Text>{this.state.requestedBookName}</Text>
+                    </View>
+                    <View style={styles.bookRequestStyle}>
+                        <Text style={{fontweight:"bold"}}>Book Status</Text>
+                        <Text>{this.state.bookStatus}</Text>
+                    </View>
+                    <TouchableOpacity style={styles.receiveButton}onPress={()=>{
+                        this.sendNotification();
+                        this.updateBookRequestStatus();
                     }}>
-                        <Text>Request</Text>
+                        <Text style={{justifyContent:"center"}}>I received the book!</Text>
                     </TouchableOpacity>
-                </KeyboardAvoidingView>
-            </View>
-        )
+                </View>
+            )
+        }else{
+            return(
+                <View style = {{flex:1}}>
+                    <MyHeader title="Request Books"></MyHeader>
+                    <KeyboardAvoidingView style={styles.keyboardStyle}>
+                        <TextInput style={styles.formTextInput} placeholder="Enter book name" 
+                        onChangeText={(text)=>{
+                            this.setState({
+                                bookName : text,
+                            })
+                        }} value={this.state.bookName}></TextInput>
+                        <TextInput style={styles.formTextInput} placeholder="Enter book author" 
+                        onChangeText={(text)=>{
+                            this.setState({
+                                author : text,
+                            })
+                        }} value={this.state.author}></TextInput>
+                        <TextInput style = {[styles.formTextInput, {height : 300}]} 
+                        multiline numberOfLines = {10} 
+                        placeholder = "Why do you need the book?"
+                        onChangeText={(text)=>{
+                            this.setState({
+                                reasonToRequest : text,
+                            })
+                        }} value={this.state.reasonToRequest}></TextInput>
+                        <TouchableOpacity style={styles.button}
+                        onPress = {()=>{
+                            this.addRequest(this.state.bookName,this.state.reasonToRequest,this.state.author)
+                        }}>
+                            <Text>Request</Text>
+                        </TouchableOpacity>
+                    </KeyboardAvoidingView>
+                </View>
+            )
+        }
     }
 }
 const styles = StyleSheet.create({
@@ -183,4 +204,26 @@ const styles = StyleSheet.create({
         elevation: 16, 
         marginTop:20 
     }, 
+    container:{ 
+        flex : 1, 
+        justifyContent: 'center' 
+    }, 
+    bookRequestStyle:{ 
+        borderColor:"orange", 
+        borderWidth:2, 
+        justifyContent:'center', 
+        alignItems:'center', 
+        padding:10, margin:10 
+    }, 
+    receiveButton:{ 
+        borderWidth:1, 
+        borderColor:'orange', 
+        backgroundColor:"orange", 
+        width:200, 
+        alignSelf:'center', 
+        alignItems:'center', 
+        justifyContent:'center', 
+        height:30, 
+        marginTop:10 
+    }
 })
